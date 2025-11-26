@@ -118,7 +118,7 @@ spec:
             steps {
                 container('dind') {
                     sh '''
-                        docker login ${NEXUS} -u admin -p Imcc@2025
+                        docker login ${NEXUS} -u admin -p Changeme@2025
                     '''
                 }
             }
