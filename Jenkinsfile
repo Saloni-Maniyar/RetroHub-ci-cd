@@ -18,7 +18,7 @@ spec:
     tty: true
 
   - name: kubectl
-    image: lachlanevenson/k8s-kubectl        # ✅ FIXED (only change)
+    image: lachlanevenson/k8s-kubectl      # FIXED IMAGE
     command: ['cat']
     tty: true
     env:
@@ -134,6 +134,17 @@ spec:
 
                         docker push ${NEXUS}/${PROJECT_FOLDER}/${BACKEND_IMG}:v1
                         docker push ${NEXUS}/${PROJECT_FOLDER}/${FRONTEND_IMG}:v1
+                    '''
+                }
+            }
+        }
+
+        /* ================= CREATE NAMESPACE IF MISSING ================= */
+        stage('Create Namespace If Not Exists') {
+            steps {
+                container('kubectl') {
+                    sh '''
+                        kubectl get ns ${NAMESPACE} || kubectl create namespace ${NAMESPACE}
                     '''
                 }
             }
