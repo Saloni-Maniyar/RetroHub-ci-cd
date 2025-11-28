@@ -18,7 +18,7 @@ spec:
     tty: true
 
   - name: kubectl
-    image: bitnami/kubectl:latest
+    image: lachlanevenson/k8s-kubectl   # ✅ FIXED (ONLY CHANGE)
     command: ['cat']
     tty: true
     env:
@@ -57,7 +57,6 @@ spec:
 
     stages {
 
-        /* ================= FRONTEND BUILD ================= */
         stage('Install + Build Frontend') {
             steps {
                 container('node') {
@@ -70,7 +69,6 @@ spec:
             }
         }
 
-        /* ================= BACKEND INSTALL ================= */
         stage('Backend Install') {
             steps {
                 container('node') {
@@ -82,7 +80,6 @@ spec:
             }
         }
 
-        /* ================= DOCKER BUILD ================= */
         stage('Build Docker Images') {
             steps {
                 container('dind') {
@@ -96,7 +93,6 @@ spec:
             }
         }
 
-        /* ================= SONAR ANALYSIS ================= */
         stage('SonarQube Analysis') {
             steps {
                 container('sonar-scanner') {
@@ -113,7 +109,6 @@ spec:
             }
         }
 
-        /* ================= NEXUS LOGIN ================= */
         stage('Login to Nexus Registry') {
             steps {
                 container('dind') {
@@ -124,7 +119,6 @@ spec:
             }
         }
 
-        /* ================= PUSH IMAGES ================= */
         stage('Push Images to Nexus') {
             steps {
                 container('dind') {
@@ -139,7 +133,6 @@ spec:
             }
         }
 
-        /* ================= K8S DEPLOY ================= */
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
