@@ -109,6 +109,24 @@ spec:
             }
         }
 
+        /* 🔍 DEBUG NEXUS SERVICE HERE */
+        stage('Debug Nexus Service') {
+            steps {
+                container('kubectl') {
+                    sh '''
+                        echo "=== NEXUS SERVICES (all namespaces) ==="
+                        kubectl get svc -A | grep -i nexus || true
+
+                        echo "=== NEXUS PODS ==="
+                        kubectl get pods -A | grep -i nexus || true
+
+                        echo "=== NEXUS NAMESPACES ==="
+                        kubectl get ns | grep -i nexus || true
+                    '''
+                }
+            }
+        }
+
         stage('Login to Nexus Registry') {
             steps {
                 container('dind') {
@@ -133,7 +151,6 @@ spec:
             }
         }
 
-        /* ---- Create Namespace ---- */
         stage('Create Namespace If Not Exists') {
             steps {
                 container('kubectl') {
@@ -144,7 +161,6 @@ spec:
             }
         }
 
-        /* ---- Create imagePullSecret ---- */
         stage('Create ImagePullSecret If Not Exists') {
             steps {
                 container('kubectl') {
@@ -161,7 +177,6 @@ spec:
             }
         }
 
-        /* ---- Patch Deployments ---- */
         stage('Patch Deployments With ImagePullSecret') {
             steps {
                 container('kubectl') {
@@ -176,7 +191,6 @@ spec:
             }
         }
 
-        /* ---- Deploy ---- */
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
@@ -195,7 +209,6 @@ spec:
         }
     }
 
-    /* ---- ALWAYS print logs ---- */
     post {
         always {
             container('kubectl') {
