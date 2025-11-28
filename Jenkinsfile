@@ -8,7 +8,7 @@ spec:
   containers:
 
   - name: node
-    image: node:18
+    image: node:20
     command: ['cat']
     tty: true
 
@@ -31,12 +31,14 @@ spec:
 
   - name: dind
     image: docker:dind
-    args: ["--storage-driver=overlay2"]
+    args:
+      - "--storage-driver=overlay2"
+      - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
     securityContext:
       privileged: true
     env:
-    - name: DOCKER_TLS_CERTDIR
-      value: ""
+      - name: DOCKER_TLS_CERTDIR
+        value: ""
 
   - name: jnlp
     image: jenkins/inbound-agent:latest
@@ -86,13 +88,10 @@ spec:
             steps {
                 container('dind') {
                     sh '''
-                        sleep 5
+                        sleep 4
 
-                        docker build --pull=false \
-                            -t ${BACKEND_IMG}:latest ./retrohub-backend
-
-                        docker build --pull=false \
-                            -t ${FRONTEND_IMG}:latest ./retrohub-frontend
+                        docker build --pull=false -t ${BACKEND_IMG}:latest ./retrohub-backend
+                        docker build --pull=false -t ${FRONTEND_IMG}:latest ./retrohub-frontend
                     '''
                 }
             }
@@ -104,10 +103,10 @@ spec:
                     withCredentials([string(credentialsId: 'sonar-token-2401125-new', variable: 'SONAR_TOKEN')]) {
                         sh """
                             sonar-scanner \
-                                -Dsonar.projectKey=2401125_RetroHub \
-                                -Dsonar.sources=retrohub-backend \
-                                -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
-                                -Dsonar.login=$SONAR_TOKEN
+                              -Dsonar.projectKey=2401125_RetroHub \
+                              -Dsonar.sources=retrohub-backend \
+                              -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
+                              -Dsonar.token=$SONAR_TOKEN
                         """
                     }
                 }
@@ -118,7 +117,7 @@ spec:
             steps {
                 container('dind') {
                     sh '''
-                        docker login ${NEXUS} -u admin -p Changeme@2025
+                        echo "Changeme@2025" | docker login ${NEXUS} -u admin --password-stdin
                     '''
                 }
             }
@@ -153,11 +152,11 @@ spec:
                 container('kubectl') {
                     sh '''
                         if ! kubectl get secret nexus-creds -n ${NAMESPACE}; then
-                          kubectl create secret docker-registry nexus-creds \
-                            --docker-server=${NEXUS} \
-                            --docker-username=admin \
-                            --docker-password=Changeme@2025 \
-                            -n ${NAMESPACE}
+                            kubectl create secret docker-registry nexus-creds \
+                                --docker-server=${NEXUS} \
+                                --docker-username=admin \
+                                --docker-password=Changeme@2025 \
+                                -n ${NAMESPACE}
                         fi
                     '''
                 }
@@ -192,6 +191,17 @@ spec:
                         kubectl rollout status deployment/retrohub-frontend -n ${NAMESPACE} || true
                     '''
                 }
+            }
+        }
+    }
+
+    post {
+        always {
+            container('kubectl') {
+                sh '''
+                    echo "=== PODS ==="
+                    kubectl get pods -n ${NAMESPACE}
+                '''
             }
         }
     }
