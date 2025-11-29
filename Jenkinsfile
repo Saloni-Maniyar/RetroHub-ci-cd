@@ -63,35 +63,26 @@ spec:
 
     stages {
 
-        stage('Install + Build Frontend') {
+        /* ⛔ FRONTEND BUILD REMOVED – Docker handles it */
+        stage('Skip Local Frontend Build') {
             steps {
-                container('node') {
-                    sh '''
-                        cd retrohub-frontend
-                        npm install
-                        npm run build
-                    '''
-                }
+                echo "Frontend build will happen inside Dockerfile"
             }
         }
 
-        stage('Backend Install') {
+        /* ⛔ BACKEND INSTALL REMOVED – Docker handles it */
+        stage('Skip Local Backend Install') {
             steps {
-                container('node') {
-                    sh '''
-                        cd retrohub-backend
-                        npm install --omit=dev
-                    '''
-                }
+                echo "Backend install will happen inside Dockerfile"
             }
         }
 
+        /* ✅ Docker builds with npm install & vite inside */
         stage('Build Docker Images') {
             steps {
                 container('dind') {
                     sh '''
                         sleep 3
-
                         docker build --pull=false -t ${BACKEND_IMAGE}:${TAG} ./retrohub-backend
                         docker build --pull=false -t ${FRONTEND_IMAGE}:${TAG} ./retrohub-frontend
                     '''
@@ -162,7 +153,6 @@ spec:
             }
         }
 
-        /* ---- DEPLOY FIRST ---- */
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
@@ -177,13 +167,11 @@ spec:
             }
         }
 
-        /* ---- THEN PATCH ---- */
         stage('Patch Deployments With ImagePullSecret') {
             steps {
                 container('kubectl') {
                     sh '''
                         sleep 5
-
                         kubectl patch deployment retrohub-backend -n ${NAMESPACE} \
                           -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"nexus-creds"}]}}}}'
 
@@ -194,7 +182,6 @@ spec:
             }
         }
 
-        /* ---- ROLLOUT STATUS ---- */
         stage('Rollout Status') {
             steps {
                 container('kubectl') {
