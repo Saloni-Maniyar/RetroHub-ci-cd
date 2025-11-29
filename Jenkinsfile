@@ -69,6 +69,7 @@ spec:
                     sh '''
                         cd retrohub-frontend
                         npm install
+                        npm install -g vite
                         npm run build
                     '''
                 }
@@ -161,7 +162,6 @@ spec:
             }
         }
 
-        /* ---- DEPLOY FIRST ---- */
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
@@ -176,7 +176,6 @@ spec:
             }
         }
 
-        /* ---- UPDATE BACKEND IMAGE ---- */
         stage('Update Backend Image') {
             steps {
                 container('kubectl') {
@@ -189,7 +188,6 @@ spec:
             }
         }
 
-        /* ---- THEN PATCH IMAGEPULLSECRET ---- */
         stage('Patch Deployments With ImagePullSecret') {
             steps {
                 container('kubectl') {
@@ -205,7 +203,6 @@ spec:
             }
         }
 
-        /* ---- ROLLOUT STATUS ---- */
         stage('Rollout Status') {
             steps {
                 container('kubectl') {
