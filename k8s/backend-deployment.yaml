@@ -20,3 +20,18 @@ spec:
           image: 127.0.0.1:30085/2401125/retrohub-backend:v1
           ports:
             - containerPort: 5001
+          env:
+            - name: MONGO_URL
+              value: "mongodb+srv://salonimaniyar16_db_user:Retro26@cluster0.qkv2zqk.mongodb.net/retrohub?retryWrites=true&w=majority&appName=Cluster0"
+
+            - name: JWT_SECRET
+              value: "69f314e319b570634b95ff58e606531b667415abfd9a94e70ed51a261178f4976313c7d0728b0164c5d688ebcb77bd96a18b66298e63653ca59ee606160f8ef0"
+
+            - name: PORT
+              value: "5001"
+
+            - name: EMAIL_USER
+              value: "interviewwebsite949@gmail.com"
+
+            - name: EMAIL_PASS
+              value: "dffk ccxi uqyx ryod"

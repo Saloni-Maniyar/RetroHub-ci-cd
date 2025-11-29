@@ -91,7 +91,6 @@ spec:
                 container('dind') {
                     sh '''
                         sleep 3
-
                         docker build --pull=false -t ${BACKEND_IMAGE}:${TAG} ./retrohub-backend
                         docker build --pull=false -t ${FRONTEND_IMAGE}:${TAG} ./retrohub-frontend
                     '''
@@ -177,13 +176,25 @@ spec:
             }
         }
 
-        /* ---- THEN PATCH ---- */
+        /* ---- UPDATE BACKEND IMAGE ---- */
+        stage('Update Backend Image') {
+            steps {
+                container('kubectl') {
+                    sh '''
+                        kubectl set image deployment/retrohub-backend \
+                        retrohub-backend=${BACKEND_IMAGE}:${TAG} \
+                        -n ${NAMESPACE}
+                    '''
+                }
+            }
+        }
+
+        /* ---- THEN PATCH IMAGEPULLSECRET ---- */
         stage('Patch Deployments With ImagePullSecret') {
             steps {
                 container('kubectl') {
                     sh '''
                         sleep 5
-
                         kubectl patch deployment retrohub-backend -n ${NAMESPACE} \
                           -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"nexus-creds"}]}}}}'
 
