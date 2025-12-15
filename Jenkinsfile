@@ -31,20 +31,21 @@ spec:
 
   - name: dind
     image: docker:24-dind
-    args:
-      - "--storage-driver=overlay2"
-      - "--host=tcp://0.0.0.0:2375"
-      - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
     securityContext:
       privileged: true
     env:
       - name: DOCKER_TLS_CERTDIR
         value: ""
+    volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run
 
   - name: jnlp
     image: jenkins/inbound-agent:latest
 
   volumes:
+    - name: docker-sock
+      emptyDir: {}
     - name: kubeconfig-secret
       secret:
         secretName: kubeconfig-secret
@@ -53,7 +54,7 @@ spec:
     }
 
     environment {
-        DOCKER_HOST = "tcp://localhost:2375"
+        DOCKER_HOST = "unix:///var/run/docker.sock"
 
         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
         PROJECT_FOLDER = "2401125"
@@ -78,11 +79,12 @@ spec:
             }
         }
 
-        /* 🔍 TEMPORARY – verify Docker daemon */
+        /* 🔍 Docker verification */
         stage('Docker Sanity Check') {
             steps {
                 container('dind') {
                     sh '''
+                        ls -l /var/run/docker.sock
                         docker version
                         docker info
                     '''
@@ -94,7 +96,6 @@ spec:
             steps {
                 container('dind') {
                     sh '''
-                        sleep 3
                         docker build --pull=false -t ${BACKEND_IMAGE}:${TAG} ./retrohub-backend
                         docker build --pull=false -t ${FRONTEND_IMAGE}:${TAG} ./retrohub-frontend
                     '''
