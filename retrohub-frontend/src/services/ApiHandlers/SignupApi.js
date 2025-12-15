@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 const API = import.meta.env.VITE_API_URL;
-console.log("Api is ",API);
+
 export async function SignupApi({ name, email, password, teamId }) {
   console.log("In SignupApi function");
+  console.log("Api is ",API);
 
   try {
     const res = await axios.post(`${API}/api/auth/signup`, {
