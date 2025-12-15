@@ -14,9 +14,9 @@ spec:
         app: retrohub-frontend
     spec:
       imagePullSecrets:
-        - name: nexus-creds
+        - name: nexus-creds   # <-- using admin-provided Nexus creds
       containers:
         - name: retrohub-frontend
-          image: 127.0.0.1:30085/2401125/retrohub-frontend:v1
+          image: 127.0.0.1:30085/2401125/retrohub-frontend:v1  # <-- Nexus image unchanged
           ports:
-            - containerPort: 80
+            - containerPort: 80   # <-- frontend served at port 80

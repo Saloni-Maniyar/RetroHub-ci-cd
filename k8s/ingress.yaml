@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: retrohub-ingress
+  namespace: "2401125"
+  annotations:
+    kubernetes.io/ingress.class: nginx   # <-- tells K8s to use NGINX ingress
+spec:
+  rules:
+    - host: 2401125.imcc.com    # <-- YOUR DOMAIN
+      http:
+        paths:
+
+          # 1️⃣ FRONTEND ROUTE
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: retrohub-frontend-service
+                port:
+                  number: 80   # <-- FE service port
+
+          # 2️⃣ BACKEND ROUTE
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: retrohub-backend-service
+                port:
+                  number: 5001   # <-- BE service port

@@ -1,26 +1,32 @@
-import axios from 'axios'
-export  async function loginApi({email,password,teamId}){
-    console.log('In loginApi function');
-    console.log("teamid in loginApi function:",teamId);
-    try{
-        console.log("trying to log in");
-        const res=await axios.post("http://localhost:5001/api/auth/login",{
-            email:email,
-            password:password,
-            teamId:teamId
-        })
-        console.log("res after login",res);
-        const {token,user}=res.data;
+import axios from 'axios';
 
-          // Store JWT token in localStorage
-          sessionStorage.setItem("token", token);
-          sessionStorage.setItem("user", JSON.stringify(user));
+const API = import.meta.env.VITE_API_URL;
 
-          return res.data;
-    }catch(err){
-        console.log(err);
-        console.log("Error login",err.response?.data?.message || err.message);
+export async function loginApi({ email, password, teamId }) {
+  console.log('In loginApi function');
+  console.log("teamId in loginApi:", teamId);
 
-        throw(err);
-    }
+  try {
+    console.log("Trying to log in...");
+
+    const res = await axios.post(`${API}/api/auth/login`, {
+      email,
+      password,
+      teamId,
+    });
+
+    console.log("Login response:", res);
+
+    const { token, user } = res.data;
+
+    // Store JWT token in sessionStorage
+    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("user", JSON.stringify(user));
+
+    return res.data;
+
+  } catch (err) {
+    console.log("Error in login:", err.response?.data?.message || err.message);
+    throw err;
+  }
 }

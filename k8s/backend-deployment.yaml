@@ -14,13 +14,13 @@ spec:
         app: retrohub-backend
     spec:
       imagePullSecrets:
-        - name: nexus-creds
+        - name: nexus-creds    # <-- using admin-provided Nexus creds
       containers:
         - name: retrohub-backend
-          image: 127.0.0.1:30085/2401125/retrohub-backend:v1
+          image: 127.0.0.1:30085/2401125/retrohub-backend:v1   # <-- Nexus image
           ports:
-            - containerPort: 5001
-          env:
+            - containerPort: 5001   # <-- backend port
+          env:   # <-- ADDED ALL BACKEND ENV HERE
             - name: MONGO_URL
               value: "mongodb+srv://salonimaniyar16_db_user:Retro26@cluster0.qkv2zqk.mongodb.net/retrohub?retryWrites=true&w=majority&appName=Cluster0"
 
@@ -35,3 +35,9 @@ spec:
 
             - name: EMAIL_PASS
               value: "dffk ccxi uqyx ryod"
+
+            - name: FRONTEND_URL     # <-- NEW: added FE URL for CORS
+              value: "https://2401125.imcc.com"
+
+            - name: FRONTEND_URL_LOCAL   # <-- NEW: local dev allowed
+              value: "http://localhost:5173"

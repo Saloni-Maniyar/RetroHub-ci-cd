@@ -8,13 +8,17 @@ const connectDB = require('./config/db');
 const app=express();
 const PORT = process.env.PORT || 5001;
 
+const FRONTEND_PROD = process.env.FRONTEND_URL;
+const FRONTEND_LOCAL = process.env.FRONTEND_URL_LOCAL;
+const allowedOrigins = [FRONTEND_PROD];
+if (FRONTEND_LOCAL) allowedOrigins.push(FRONTEND_LOCAL);
 
 
-const corsOptions={
-    origin:["http://localhost:5173",],
-    methods:"GET,POST,PUT,DELETE,PATCH,HEAD",
-    credentials:true
-}
+const corsOptions = {
+    origin: allowedOrigins,
+    methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
+    credentials: true
+};
 app.use(cors(corsOptions));
 
 app.use(express.json())
@@ -54,7 +58,7 @@ connectDB();//call to mongoose.connecet in config/db.js
 const server = http.createServer(app); // wrap Express app
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173", // your frontend URL
+        origin: allowedOrigins,
         methods: ["GET", "POST"]
     }
 });

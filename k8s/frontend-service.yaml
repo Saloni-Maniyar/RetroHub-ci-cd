@@ -4,7 +4,7 @@ metadata:
   name: retrohub-frontend-service
   namespace: "2401125"
 spec:
-  type: LoadBalancer
+  type: ClusterIP   # <-- changed from LoadBalancer → ClusterIP for Ingress routing
   selector:
     app: retrohub-frontend
   ports:

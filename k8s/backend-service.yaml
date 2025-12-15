@@ -4,9 +4,9 @@ metadata:
   name: retrohub-backend-service
   namespace: "2401125"
 spec:
-  type: ClusterIP
+  type: ClusterIP    # <-- correct for Ingress routing
   selector:
     app: retrohub-backend
   ports:
-    - port: 5001
-      targetPort: 5001
+    - port: 5001       # <-- exposed inside cluster
+      targetPort: 5001 # <-- backend containerPort
